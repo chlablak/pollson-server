@@ -1,0 +1,12 @@
+{
+  "host": "localhost",
+  "port": 3030,
+  "mongodb": "mongodb://localhost:27017/Pollson",
+  "public": "../public/",
+  "auth": {
+    "token": {
+      "secret": "VPfiLmSGOkcLHVeCBckwNDwuEd+2UMCXh6wr49+/kihvS5sWRwWtlL6A424yiP9xsvE5ZVWtbY2x6uDh8v5tPg=="
+    },
+    "local": {}
+  }
+}
