@@ -6,10 +6,16 @@ const Schema = mongoose.Schema;
 const roomSchema = new Schema({
   name: { type: String, required: true },
 
+  // 4 number id
+  id: { type: Number },
+
+  // optional 4 number password
+  pwd: { type: Number },
+
   questions: [{
 
     // unique way to identify the question within a room
-    id: { type: Number },
+    num: { type: Number },
 
     // actual quesiton
     text: { type: String, required: true },

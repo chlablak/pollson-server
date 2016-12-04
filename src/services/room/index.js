@@ -4,7 +4,7 @@ const service = require('feathers-mongoose');
 const room = require('./room-model');
 const hooks = require('./hooks');
 
-module.exports = function() {
+module.exports = function () {
   const app = this;
 
   const options = {
@@ -16,7 +16,12 @@ module.exports = function() {
   };
 
   // Initialize our service with any options it requires
-  app.use('/rooms', service(options));
+  app.use('/rooms',
+    function (req, res, next) {
+      req.feathers.path = req.path;
+      next();
+    },
+    service(options));
 
   // Get our initialize service to that we can bind hooks
   const roomService = app.service('/rooms');
