@@ -4,6 +4,7 @@ const globalHooks = require('../../../hooks');
 const hooks = require('feathers-hooks');
 const MongoClient = require('mongodb').MongoClient;
 const ObjectId = require('mongodb').ObjectID;
+const jwt = require('jsonwebtoken');
 const errors = require('feathers-errors');
 const feathers = require('feathers');
 const configuration = require('feathers-configuration');
@@ -21,9 +22,13 @@ const connection = new Promise((resolve, reject) => {
 
 const addAnswer = function (options) {
   return function (hook) {
+    let config = app.get('auth');
+    let token = jwt.verify(hook.params.token, config.token.secret);
+
     return connection.then(db => {
       const roomCollection = db.collection('rooms');
 
+      // find the document
       return new Promise((resolve, reject) => {
         let objId = new ObjectId(hook.data.answer);
         roomCollection.find({ "questions.options._id": objId }).limit(1).toArray(function (err, docs) {
@@ -48,13 +53,17 @@ const addAnswer = function (options) {
             }
           }
 
+          // update the document
           return new Promise((resolve1, reject1) => {
-            let setPath = 'questions.' + index1 + '.options.' + index2 + '.count';
-            let setQuery = {};
+            let incPath = 'questions.' + index1 + '.options.' + index2 + '.count';
+            let incQuery = {};
+            incQuery[incPath] = 1;
 
-            // increment by 1
-            setQuery[setPath] = 1;
-            roomCollection.findOneAndUpdate({ "questions.options._id": objId }, { $inc: setQuery }, function (err1, doc) {
+            let addPath = 'questions.' + index1 + '.answered';
+            let addQuery = {};
+            addQuery[addPath] = token._id;
+
+            roomCollection.findOneAndUpdate({ "questions.options._id": objId }, { $inc: incQuery, $addToSet: addQuery }, function (err1, doc) {
               if (err1) {
                 return reject(err1);
               }

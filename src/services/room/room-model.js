@@ -30,6 +30,9 @@ const roomSchema = new Schema({
     // the number to the right answer (index from 0 to options.length - 1)
     answer: { type: Number },
 
+    // list of users who have already answered this question
+    answered: [{ type: String }],
+
     // is the quiz still open or locked?
     open: { type: Boolean, default: true },
   }],

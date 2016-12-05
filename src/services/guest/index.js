@@ -25,6 +25,7 @@ class Service {
     let config = app.get('auth');
 
     let token = jwt.sign({
+      _id: data._id,
       roomId: data.roomId,
       exp: Math.floor(Date.now() / 1000) + (24 * 60 * 60)
     }, config.token.secret);

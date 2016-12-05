@@ -10,6 +10,15 @@ const feathers = require('feathers');
 const configuration = require('feathers-configuration');
 const app = feathers().configure(configuration(__dirname));
 
+function guid() {
+  function s4() {
+    return Math.floor((1 + Math.random()) * 0x10000)
+      .toString(16)
+      .substring(1);
+  }
+  return s4() + s4() + s4() + s4() + s4() + s4();
+}
+
 
 const connection = new Promise((resolve, reject) => {
   MongoClient.connect(app.get('mongodb'), function (err, db) {
@@ -42,8 +51,11 @@ const checkRoomCredentials = function (options) {
               return reject(new errors.BadRequest('Wrong password', { password: hook.data.password }));
             }
 
-            // add the long id
+            // add the long room id
             hook.data.roomId = docs[0]._id;
+
+            // add "unique" _id
+            hook.data._id = guid();
 
             resolve(hook);
           });
