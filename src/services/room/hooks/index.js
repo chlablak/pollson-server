@@ -12,9 +12,6 @@ const addData = function (options) {
     // avoid collisions with same id
     hook.data.id = Math.floor(Math.random() * (10000 - 1000) + 1000);
 
-    // TODO
-    // add options number
-    console.log(hook.data.questions.length);
     for(let i = 0; i < hook.data.questions.length; ++i){
       hook.data.questions[i].num = i + 1;
     }
@@ -23,9 +20,9 @@ const addData = function (options) {
 
 const checkPwdFormat = function (options) {
   return function (hook) {
-    var pwd = parseInt(hook.data.pwd, 10);
-    if (pwd < 1000 || pwd > 9999) {
-      throw new errors.BadRequest('pwd should be a number between 1000 and 9999', { pwd: hook.data.pwd });
+    var password = parseInt(hook.data.password, 10);
+    if (password < 1000 || password > 9999) {
+      throw new errors.BadRequest('pwd should be a number between 1000 and 9999', { password: hook.data.password });
     }
   }
 }
