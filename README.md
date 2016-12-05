@@ -17,7 +17,7 @@ To add a user, `POST` on `localhost:3030/users` a request with the following bod
 The expected response is a `201 created`.
 
 ## Get user's JWT
-To get a user's token (JSON Web Token), `POST` a request with the email and password. This token should be attached as an `Authorization` header in subsequent requests where the user needs to be identified.
+To get a user's token (JSON Web Token), `POST` a request with the email and password on `/auth/local`. This token should be attached as an `Authorization` header in subsequent requests where the user needs to be identified.
 
 ```json
 {
