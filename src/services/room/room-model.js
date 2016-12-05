@@ -6,6 +6,8 @@ const Schema = mongoose.Schema;
 const roomSchema = new Schema({
   name: { type: String, required: true },
 
+  creator: { type: String},
+
   // 4 number id
   id: { type: Number },
 

@@ -4,14 +4,21 @@ const globalHooks = require('../../../hooks');
 const hooks = require('feathers-hooks-common');
 const auth = require('feathers-authentication').hooks;
 const errors = require('feathers-errors');
+const jwt = require('jsonwebtoken');
+const feathers = require('feathers');
+const configuration = require('feathers-configuration');
+const app = feathers().configure(configuration(__dirname));
 
 const addData = function (options) {
   return function (hook) {
+    let config = app.get('auth');
 
     // TODO
     // avoid collisions with same id
     hook.data.id = Math.floor(Math.random() * (10000 - 1000) + 1000);
 
+    let token = jwt.verify(hook.params.token, config.token.secret);
+    hook.data.creator = token._id;
   }
 }
 
