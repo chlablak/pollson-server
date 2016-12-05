@@ -38,7 +38,7 @@ If you wish to post new rooms, you should create a new user. To obtain a guest t
 }
 ```
 
-The expected response is a `201 created` with the token in return body.
+The expected response is a `201 created` with the token and the long id (e.g. `58453c57f7b27d31f4637a90`) in return body.
 
 ## Create a room
 To create a new room, `POST` it on the `/rooms` endpoint. Here's a small example room (the format is very likely to change in the near future):

@@ -16,27 +16,41 @@ const connection = new Promise((resolve, reject) => {
     if (err) {
       return reject(err);
     }
-
     resolve(db);
   });
 });
 
-const checkRoom = function (hook) {
+const checkRoomExists = function (hook) {
   return connection.then(db => {
     const roomCollection = db.collection('rooms');
-    return roomCollection.count({id: hook.data.room}).then(res => {
-      if (res == 0){
+    return roomCollection.count({ id: hook.data.room }).then(res => {
+      if (res == 0) {
         throw new errors.BadRequest('There is no room with this id', { _id: hook.data.room });
       }
     });
   });
 };
 
+const addRoomId = function (hook) {
+  return connection.then(db => {
+    const roomCollection = db.collection('rooms');
+    return new Promise((resolve, reject) => {
+      roomCollection.find({ id: hook.data.room }).limit(1).toArray(function (err, docs){
+      if(err){
+        return reject(err);
+      }
+      hook.result._id = docs[0]._id;
+      resolve(hook)
+    });
+    });
+  });
+}
+
 exports.before = {
   all: [],
   find: [],
   get: [],
-  create: [checkRoom],
+  create: [checkRoomExists],
   update: [],
   patch: [],
   remove: []
@@ -46,7 +60,7 @@ exports.after = {
   all: [],
   find: [],
   get: [],
-  create: [],
+  create: [addRoomId],
   update: [],
   patch: [],
   remove: []

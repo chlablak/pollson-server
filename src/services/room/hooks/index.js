@@ -14,6 +14,10 @@ const addData = function (options) {
 
     // TODO
     // add options number
+    console.log(hook.data.questions.length);
+    for(let i = 0; i < hook.data.questions.length; ++i){
+      hook.data.questions[i].num = i + 1;
+    }
   }
 }
 
