@@ -1,10 +1,6 @@
 'use strict';
 
 const hooks = require('./hooks');
-const jwt = require('jsonwebtoken');
-const feathers = require('feathers');
-const configuration = require('feathers-configuration');
-const app = feathers().configure(configuration(__dirname));
 
 class Service {
   constructor(options) {
@@ -22,13 +18,11 @@ class Service {
   }
 
   create(data, params) {
-    let config = app.get('auth');
+    if(Array.isArray(data)) {
+      return Promise.all(data.map(current => this.create(current)));
+    }
 
-    let token = jwt.sign({
-      roomId: data.roomId,
-      exp: Math.floor(Date.now() / 1000) + (24 * 60 * 60)
-    }, config.token.secret);
-    return Promise.resolve({ token: token });
+    return Promise.resolve(data);
   }
 
   update(id, data, params) {
@@ -44,25 +38,20 @@ class Service {
   }
 }
 
-module.exports = function () {
+module.exports = function(){
   const app = this;
 
   // Initialize our service with any options it requires
-  app.use('/guests',
-    new Service() /*,
-        function(req, res, next) {
-            req.feathers.headers = req.headers;
-            next();
-        }*/);
+  app.use('/answers', new Service());
 
   // Get our initialize service to that we can bind hooks
-  const guestService = app.service('/guests');
+  const answerService = app.service('/answers');
 
   // Set up our before hooks
-  guestService.before(hooks.before);
+  answerService.before(hooks.before);
 
   // Set up our after hooks
-  guestService.after(hooks.after);
+  answerService.after(hooks.after);
 };
 
 module.exports.Service = Service;

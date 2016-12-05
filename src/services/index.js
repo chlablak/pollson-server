@@ -1,4 +1,5 @@
 'use strict';
+const answer = require('./answer');
 const guest = require('./guest');
 const room = require('./room');
 const authentication = require('./authentication');
@@ -14,4 +15,5 @@ module.exports = function() {
   app.configure(user);
   app.configure(room);
   app.configure(guest);
+  app.configure(answer);
 };

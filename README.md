@@ -66,3 +66,13 @@ To create a new room, `POST` it on the `/rooms` endpoint. Here's a small example
 ```
 
 You can optionnaly add a 4 number password (e.g. `"password": 1212`).
+
+## Answer a question
+To answer a question, you must `POST` on `/answers` endpoint. The header of the request needs to contain the guest's token and the body of the request should look something like this:
+
+```json
+{
+	"roomId": "5845413180076429eca241f3",
+	"answer": "5845413180076429eca241f5"
+}
+```

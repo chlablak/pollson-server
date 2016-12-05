@@ -14,9 +14,6 @@ const roomSchema = new Schema({
 
   questions: [{
 
-    // unique way to identify the question within a room
-    num: { type: Number },
-
     // actual quesiton
     text: { type: String, required: true },
 

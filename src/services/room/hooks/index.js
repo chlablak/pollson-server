@@ -12,25 +12,26 @@ const addData = function (options) {
     // avoid collisions with same id
     hook.data.id = Math.floor(Math.random() * (10000 - 1000) + 1000);
 
-    for(let i = 0; i < hook.data.questions.length; ++i){
-      hook.data.questions[i].num = i + 1;
-    }
   }
 }
 
 const checkPwdFormat = function (options) {
   return function (hook) {
     var password = parseInt(hook.data.password, 10);
-    if (password < 1000 || password > 9999) {
-      throw new errors.BadRequest('pwd should be a number between 1000 and 9999', { password: hook.data.password });
+    if (password < 0 || password > 9999) {
+      throw new errors.BadRequest('Password should be a number between 0000 and 9999', { password: hook.data.password });
     }
   }
 }
 
 exports.before = {
   all: [],
-  find: [globalHooks.verifyToken()],
-  get: [globalHooks.verifyToken()],
+  find: [
+    auth.verifyToken(),
+    auth.populateUser(),
+    auth.restrictToAuthenticated()
+  ],
+  get: [globalHooks.verifyToken('path')],
   create: [
     auth.verifyToken(),
     auth.populateUser(),
@@ -38,11 +39,18 @@ exports.before = {
     checkPwdFormat(),
     addData()
   ],
-
-  // TODO
-  // add count ++
-  update: [hooks.setUpdatedAt('updatedAt')],
-  patch: [hooks.setUpdatedAt('updatedAt')],
+  update: [
+    auth.verifyToken(),
+    auth.populateUser(),
+    auth.restrictToAuthenticated(),
+    hooks.setUpdatedAt('updatedAt')
+  ],
+  patch: [
+    auth.verifyToken(),
+    auth.populateUser(),
+    auth.restrictToAuthenticated(),
+    hooks.setUpdatedAt('updatedAt')
+  ],
   remove: [
     auth.verifyToken(),
     auth.populateUser(),
