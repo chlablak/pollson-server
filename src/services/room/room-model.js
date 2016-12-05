@@ -10,7 +10,7 @@ const roomSchema = new Schema({
   id: { type: Number },
 
   // optional 4 number password
-  pwd: { type: Number },
+  password: { type: Number },
 
   questions: [{
 

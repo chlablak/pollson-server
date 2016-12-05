@@ -13,6 +13,7 @@ To add a user, `POST` on `localhost:3030/users` a request with the following bod
   "password": password
 }
 ```
+The expected response is a `201 created`.
 
 ## Get user's JWT
 To get a user's token (JSON Web Token), `POST` a request with the email and password. This token should be attached as an `Authorization` header in subsequent requests where the user needs to be identified.
@@ -24,6 +25,8 @@ To get a user's token (JSON Web Token), `POST` a request with the email and pass
 }
 ```
 
+The expected response is a `201 created` with the token in return body.
+
 ## Get a guest token
 The guest token is used to answer questions. It is only valid for one room.
 If you wish to post new rooms, you should create a new user. To obtain a guest token, `POST` on the `/guests` endpoint a request with the room for which it will be valid.
@@ -33,13 +36,15 @@ If you wish to post new rooms, you should create a new user. To obtain a guest t
 }
 ```
 
+The expected response is a `201 created` with the token in return body.
+
 ## Create a room
 To create a new room, `POST` it on the `/rooms` endpoint. Here's a small example room (the format is very likely to change in the near future):
 
 ```json
 {
 	"name": "My first room",
-	"pwd": 1212,
+	"password": 1212,
 	"questions":
 	[
 		{
