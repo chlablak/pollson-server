@@ -20,7 +20,16 @@ const connection = new Promise((resolve, reject) => {
   });
 });
 
-const addAnswer = function (options) {
+function hasAnswered(answered, id) {
+  for (let i = 0; i < answered.length; ++i) {
+    if(answered[i] == id){
+      return true;
+    }
+  }
+  return false;
+}
+
+const validateAnswer = function (options) {
   return function (hook) {
     let config = app.get('auth');
     let token = jwt.verify(hook.params.token, config.token.secret);
@@ -49,6 +58,9 @@ const addAnswer = function (options) {
               if (docs[0].questions[i].options[j]._id == hook.data.answer) {
                 index1 = i;
                 index2 = j;
+                if(hasAnswered(docs[0].questions[i].answered, token._id)){
+                  return reject(new errors.BadRequest('This user has already answered this question'));
+                }
               }
             }
           }
@@ -83,7 +95,7 @@ exports.before = {
   get: [],
   create: [
     globalHooks.verifyToken('body'),
-    addAnswer()
+    validateAnswer()
   ],
   update: [],
   patch: [],
