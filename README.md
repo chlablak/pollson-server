@@ -2,7 +2,7 @@
 /pɔʊlzɒn/
 
 ## Run the server
-All you need to do once you've cloned the repo is `npm install` and `npm start`. The server will the be running on `localhost:3030`.
+All you need to do once you've cloned the repo is run MongoDB with `mongod`, do an `npm install` and an `npm start`. The server will the be running on `localhost:3030`.
 Note: All the following requests should have a `Content-Type: application/json` header.
 
 ## Create a user
