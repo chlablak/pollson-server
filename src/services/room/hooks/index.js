@@ -7,6 +7,9 @@ const errors = require('feathers-errors');
 
 const addData = function (options) {
   return function (hook) {
+
+    // TODO
+    // avoid collisions with same id
     hook.data.id = Math.floor(Math.random() * (10000 - 1000) + 1000);
 
     // TODO

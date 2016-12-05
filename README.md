@@ -7,10 +7,11 @@ Note: All the following requests should have a `Content-Type: application/json` 
 
 ## Create a user
 To add a user, `POST` on `localhost:3030/users` a request with the following body:
+
 ```json
 {
-  "email": email,
-  "password": password
+  "email": "super@admin.com",
+  "password": "LetMeIn123"
 }
 ```
 The expected response is a `201 created`.
@@ -20,8 +21,8 @@ To get a user's token (JSON Web Token), `POST` a request with the email and pass
 
 ```json
 {
-  "email": email,
-  "password": password
+  "email": "super@admin.com",
+  "password": "LetMeIn123"
 }
 ```
 
@@ -30,9 +31,10 @@ The expected response is a `201 created` with the token in return body.
 ## Get a guest token
 The guest token is used to answer questions. It is only valid for one room.
 If you wish to post new rooms, you should create a new user. To obtain a guest token, `POST` on the `/guests` endpoint a request with the room for which it will be valid.
+
 ```json
 {
-  "room": roomId
+  "room": 1234
 }
 ```
 
@@ -44,7 +46,6 @@ To create a new room, `POST` it on the `/rooms` endpoint. Here's a small example
 ```json
 {
 	"name": "My first room",
-	"password": 1212,
 	"questions":
 	[
 		{
