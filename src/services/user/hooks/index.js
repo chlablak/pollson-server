@@ -6,7 +6,7 @@ const auth = require('feathers-authentication').hooks;
 
 const logger = function(options){
   return function(hook){
-    console.log('CREATE')
+    console.log(options)
   }
 }
 
@@ -15,17 +15,19 @@ exports.before = {
   find: [
     auth.verifyToken(),
     auth.populateUser(),
-    auth.restrictToAuthenticated()
+    auth.restrictToAuthenticated(),
+    logger('FIND')
   ],
   get: [
     auth.verifyToken(),
     auth.populateUser(),
     auth.restrictToAuthenticated(),
-    auth.restrictToOwner({ ownerField: '_id' })
+    auth.restrictToOwner({ ownerField: '_id' }),
+    logger('GET')
   ],
   create: [
     auth.hashPassword(),
-    logger()
+    logger('CREATE')
   ],
   update: [
     auth.verifyToken(),
