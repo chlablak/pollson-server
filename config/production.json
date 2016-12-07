@@ -1,6 +1,6 @@
 {
   "host": "Pollson-app.feathersjs.com",
-  "port": 8000,
+  "port": "process.env.PORT || 80",
   "mongodb": "MONGODB_URI",
   "public": "../public/",
   "auth": {
