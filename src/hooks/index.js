@@ -19,6 +19,7 @@ exports.verifyToken = function (options) {
       if (options == 'path') {
         let splitPath = hook.params.path.split('/');
         reqId = splitPath[2];
+        //try reqId = hook.id;
       } else if (options == 'body') {
         reqId = hook.data.roomId;
       }
