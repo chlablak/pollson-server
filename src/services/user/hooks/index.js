@@ -13,21 +13,21 @@ const logger = function(options){
 exports.before = {
   all: [],
   find: [
+    logger('FIND'),
     auth.verifyToken(),
     auth.populateUser(),
-    auth.restrictToAuthenticated(),
-    logger('FIND')
+    auth.restrictToAuthenticated()
   ],
   get: [
+    logger('GET'),
     auth.verifyToken(),
     auth.populateUser(),
     auth.restrictToAuthenticated(),
-    auth.restrictToOwner({ ownerField: '_id' }),
-    logger('GET')
+    auth.restrictToOwner({ ownerField: '_id' })
   ],
   create: [
-    auth.hashPassword(),
-    logger('CREATE')
+    logger('CREATE'),
+    auth.hashPassword()
   ],
   update: [
     auth.verifyToken(),
