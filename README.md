@@ -1,17 +1,19 @@
 # Pollson-server
 **/pɔʊlzɒn/**
 
-## Context of the application
+## Context
 This application is being developped in the context of a [web technologies lesson](https://github.com/SoftEng-HEIGVD/Teaching-HEIGVD-TWEB-Lectures) given at HEIG-VD. It is being developped by [chlablak](https://github.com/chlablak) and [moodah](https://github.com/moodah). The client part of the project can be found in [this repo](https://github.com/chlablak/pollson).
 
 ## Technologies
-Our application has been implemented with the MEAN stack. We also used [Feathers](http://feathersjs.com) on top of Express to simplify database interactions.
+Our application has been implemented with the MEAN stack (latest versions). We also used [Feathers](http://feathersjs.com) (later version) on top of Express to simplify database interactions.
 
-## Run the server
-All you need to do once you've cloned the repo is run MongoDB with `mongod`, do an `npm install` and an `npm start`. The server will the be running on `localhost:3030`. It is also hosted on Heroku at http://pollson.herokuapp.com.
+## Building
+Make sure you have MongoDB, Node.js and npm installed. All you need to do once you've cloned the repo is run MongoDB with `mongod`, do an `npm install` and an `npm start` from the repo directory. The server will the be running on `localhost:3030`. It is also hosted on Heroku at http://pollson.herokuapp.com.
 Note: All the following requests should have a `Content-Type: application/json` header.
 
-## Create a user
+## Documentation
+
+### Create a user
 To add a user, `POST` on `localhost:3030/users` a request with the following body:
 
 ```json
@@ -22,7 +24,7 @@ To add a user, `POST` on `localhost:3030/users` a request with the following bod
 ```
 The expected response is a `201 created`.
 
-## Get user's JWT
+### Get user's JWT
 To get a user's token (JSON Web Token), `POST` a request with the email and password on `/auth/local`. This token should be attached as an `Authorization` header in subsequent requests where the user needs to be identified.
 
 ```json
@@ -34,7 +36,7 @@ To get a user's token (JSON Web Token), `POST` a request with the email and pass
 
 The expected response is a `201 created` with the token in return body.
 
-## Get a guest token
+### Get a guest token
 The guest token is used to answer questions. It is only valid for one room.
 If you wish to post new rooms, you should create a new user. To obtain a guest token, `POST` on the `/guests` endpoint a request with the room for which it will be valid.
 
@@ -46,11 +48,11 @@ If you wish to post new rooms, you should create a new user. To obtain a guest t
 
 The expected response is a `201 created` with the token and the long id (e.g. `58453c57f7b27d31f4637a90`) in return body.
 
-### Rooms with password
+#### Rooms with password
 If the room has a password and you do not provide one, you will reveive a `400 bad request` with an error message saying `"message": "This room requires a password"`.
 If you provide the wrong password, the response will also be a `400`, but with `"message": "Wrong password"`.
 
-## Create a room
+### Create a room
 To create a new room, `POST` it on the `/rooms` endpoint. Here's a small example room (the format is very likely to change in the near future):
 
 ```json
@@ -74,7 +76,7 @@ To create a new room, `POST` it on the `/rooms` endpoint. Here's a small example
 You can optionnaly add a 4 number password (e.g. `"password": 1212`).
 The expected response is a `201 created`.
 
-## Answer a question
+### Answer a question
 To answer a question, you must `POST` on `/answers` endpoint. The header of the request needs to contain the guest's token and the body of the request should look something like this:
 
 ```json
