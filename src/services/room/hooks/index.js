@@ -38,7 +38,9 @@ exports.before = {
     auth.populateUser(),
     auth.restrictToAuthenticated()
   ],
-  get: [globalHooks.verifyToken('path')],
+  get: [
+    globalHooks.verifyToken('path')
+  ],
   create: [
     auth.verifyToken(),
     auth.populateUser(),
