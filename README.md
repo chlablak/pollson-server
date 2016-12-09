@@ -1,5 +1,5 @@
 # Pollson-server
-/pɔʊlzɒn/
+**/pɔʊlzɒn/**
 
 ## Context of the application
 This application is being developped in the context of a [web technologies lesson](https://github.com/SoftEng-HEIGVD/Teaching-HEIGVD-TWEB-Lectures) given at HEIG-VD. It is being developped by [chlablak](https://github.com/chlablak) and [moodah](https://github.com/moodah). The client part of the project can be found in [this repo](https://github.com/chlablak/pollson).
