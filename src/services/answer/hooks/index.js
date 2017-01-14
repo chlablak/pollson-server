@@ -2,7 +2,6 @@
 
 const globalHooks = require('../../../hooks');
 const hooks = require('feathers-hooks');
-const MongoClient = require('mongodb').MongoClient;
 const ObjectId = require('mongodb').ObjectID;
 const jwt = require('jsonwebtoken');
 const errors = require('feathers-errors');
@@ -10,19 +9,9 @@ const feathers = require('feathers');
 const configuration = require('feathers-configuration');
 const app = feathers().configure(configuration(__dirname));
 
-
-const connection = new Promise((resolve, reject) => {
-  MongoClient.connect(app.get('mongodb'), function (err, db) {
-    if (err) {
-      return reject(err);
-    }
-    resolve(db);
-  });
-});
-
 function hasAnswered(answered, id) {
   for (let i = 0; i < answered.length; ++i) {
-    if(answered[i] == id){
+    if (answered[i] == id) {
       return true;
     }
   }
@@ -34,48 +23,53 @@ const validateAnswer = function (options) {
     let config = app.get('auth');
     let token = jwt.verify(hook.params.token, config.token.secret);
 
-    return connection.then(db => {
+    return globalHooks.connection.then(db => {
       const roomCollection = db.collection('rooms');
 
       // find the document
       return new Promise((resolve, reject) => {
         let objId = new ObjectId(hook.data.answer);
-        roomCollection.find({ "questions.options._id": objId }).limit(1).toArray(function (err, docs) {
+        roomCollection.findOne({ "questions.options._id": objId }, function (err, doc) {
           if (err) {
             return reject(err);
           }
 
-          if (docs.length == 0) {
+          if (doc === undefined || doc === null) {
             return reject(new errors.BadRequest('There is no answer with this id', { answer: hook.data.answer }));
           }
 
-          let index1, index2;
+          let questionIndex, answerIndex;
 
           // for each question
-          for (let i = 0; i < docs[0].questions.length; ++i) {
+          for (let i = 0; i < doc.questions.length; ++i) {
             // for each option
-            for (let j = 0; j < docs[0].questions[i].options.length; ++j) {
-              if (docs[0].questions[i].options[j]._id == hook.data.answer) {
-                index1 = i;
-                index2 = j;
-                if(hasAnswered(docs[0].questions[i].answered, token._id)){
+            for (let j = 0; j < doc.questions[i].options.length; ++j) {
+              if (doc.questions[i].options[j]._id == hook.data.answer) {
+                questionIndex = i;
+                answerIndex = j;
+                if (hasAnswered(doc.questions[i].answered, token._id)) {
                   return reject(new errors.BadRequest('This user has already answered this question'));
                 }
               }
             }
           }
 
+          // check if question is still open to answers
+          if (!doc.questions[questionIndex].open) {
+            return reject(new errors.BadRequest('This question is closed', { question: doc.question[questionIndex].text}))
+          }
+
           // update the document
           return new Promise((resolve1, reject1) => {
-            let incPath = 'questions.' + index1 + '.options.' + index2 + '.count';
+            let incPath = 'questions.' + questionIndex + '.options.' + answerIndex + '.count';
             let incQuery = {};
             incQuery[incPath] = 1;
 
-            let addPath = 'questions.' + index1 + '.answered';
+            let addPath = 'questions.' + questionIndex + '.answered';
             let addQuery = {};
             addQuery[addPath] = token._id;
 
-            roomCollection.findOneAndUpdate({ "questions.options._id": objId }, { $inc: incQuery, $addToSet: addQuery }, function (err1, doc) {
+            roomCollection.findOneAndUpdate({ "questions.options._id": objId }, { $inc: incQuery, $addToSet: addQuery }, function (err1, doc1) {
               if (err1) {
                 return reject(err1);
               }
@@ -94,7 +88,7 @@ exports.before = {
   find: [],
   get: [],
   create: [
-    globalHooks.verifyToken('body'),
+    globalHooks.verifyGuestToken('body'),
     validateAnswer()
   ],
   update: [],

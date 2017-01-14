@@ -27,8 +27,8 @@ module.exports = function () {
   const roomService = app.service('/rooms');
 
   // Set up our before hooks
-  roomService.before(hooks.before);
+  roomService.before(hooks.before(app));
 
   // Set up our after hooks
-  roomService.after(hooks.after);
+  roomService.after(hooks.after(app));
 };
