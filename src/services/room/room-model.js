@@ -2,11 +2,15 @@
 
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
+const ObjectId = Schema.Types.ObjectId
+
 
 const roomSchema = new Schema({
   name: { type: String, required: true },
 
-  creator: { type: String},
+  owner: { type: ObjectId },
+
+  creator: Object,
 
   // 4 number id
   id: { type: Number },
@@ -34,8 +38,11 @@ const roomSchema = new Schema({
     answered: [{ type: String }],
 
     // is the quiz still open or locked?
-    open: { type: Boolean, default: true },
+    open: { type: Boolean, default: true }
   }],
+
+  // is the quiz still open or locked?
+  open: { type: Boolean, default: true },
 
   createdAt: { type: Date, 'default': Date.now },
   updatedAt: { type: Date, 'default': Date.now }
