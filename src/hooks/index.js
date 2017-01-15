@@ -114,37 +114,44 @@ exports.jsonPatchAdd = function (app, serviceName) {
   }
 }
 
-exports.jsonPatchRemove = function (app, serviceName) {
+exports.jsonPatchRemoveReplace = function (app, serviceName) {
   return function (hook) {
-    if (hook.data.path !== undefined && hook.data.op === 'remove' && hook.data.value !== undefined) {
+    if (hook.data.path !== undefined && (hook.data.op === 'remove' || hook.data.op === 'replace') && hook.data.value !== undefined) {
       return exports.connection.then(db => {
         let path = hook.data.path.split('/')[1];
 
         if (path === undefined) {
-          throw new errors.BadRequest('Path must be formed like: \'/elementToAdd\'');
+          throw new errors.BadRequest('Path must be formed like: \'/elementToRemove\'');
         }
+
+        hook.params.query = { $limit: '100' };
 
         return app.service(serviceName).find(hook.params).then(res => {
           for (let i = 0; i < res.data.length; ++i) {
             for (let j = 0; j < res.data[i].questions.length; ++j) {
-              if (res.data[i].questions[j]._id.toString() === hook.data.value) {
+              if (res.data[i].questions[j]._id.toString() === hook.data.value._id) {
                 return res.data[i];
               }
             }
           }
-          throw new errors.BadRequest('Wrong value input');
+          throw new errors.BadRequest('Wrong \'value\' input');
         })
           .then(res => {
             let index = -1;
             for (let i = 0; i < res.questions.length; ++i) {
-              if (res.questions[i]._id.toString() === hook.data.value) {
+              if (res.questions[i]._id.toString() === hook.data.value._id) {
                 index = i;
               }
             }
 
-            res.questions.splice(index, 1);
+            if (hook.data.op === 'remove') {
+              res.questions.splice(index, 1);
+            } else if (hook.data.op === 'replace') {
+              res.questions[index].open = hook.data.value.open
+            }
 
             let data = { questions: res.questions };
+
             return app.service(serviceName).patch(res._id, data, hook.params)
           })
           .then(function (res) {
