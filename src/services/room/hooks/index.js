@@ -8,8 +8,10 @@ const jwt = require('jsonwebtoken');
 const feathers = require('feathers');
 const configuration = require('feathers-configuration');
 const app = feathers().configure(configuration(__dirname));
-const ObjectId = require('mongodb').ObjectID;
 
+/**
+ * Add a short room id
+ */
 const addShortRoomNumber = function (options) {
   return function (hook) {
     // TODO
@@ -22,6 +24,9 @@ const addShortRoomNumber = function (options) {
   }
 }
 
+/**
+ * Check that password is 4 digits
+ */
 const checkPwdFormat = function (options) {
   return function (hook) {
     let password = parseInt(hook.data.password, 10);
@@ -31,6 +36,9 @@ const checkPwdFormat = function (options) {
   }
 }
 
+/**
+ * Used to include creator's email
+ */
 const includeSchema = {
   include: [
     {

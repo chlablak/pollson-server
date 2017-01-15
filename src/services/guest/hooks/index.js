@@ -1,15 +1,12 @@
 'use strict';
 
 const globalHooks = require('../../../hooks');
-const hooks = require('feathers-hooks');
-const mongoose = require('mongoose');
-const MongoClient = require('mongodb').MongoClient;
 const ObjectId = require('mongodb').ObjectID;
 const errors = require('feathers-errors');
-const feathers = require('feathers');
-const configuration = require('feathers-configuration');
-const app = feathers().configure(configuration(__dirname));
 
+/**
+ * Check room id/password before generating guest token
+ */
 const checkRoomCredentials = function (options) {
   return function (hook) {
     return globalHooks.connection.then(db => {
@@ -49,6 +46,9 @@ const checkRoomCredentials = function (options) {
   };
 };
 
+/**
+ * Add the short room id
+ */
 const addRoomId = function (options) {
   return function (hook) {
     return globalHooks.connection.then(db => {

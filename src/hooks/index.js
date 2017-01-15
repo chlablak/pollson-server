@@ -8,6 +8,9 @@ const app = feathers().configure(configuration(__dirname));
 const MongoClient = require('mongodb').MongoClient;
 const ObjectId = require('mongodb').ObjectID;
 
+/**
+ * DB connection used by many hooks to access data
+ */
 exports.connection = new Promise((resolve, reject) => {
   MongoClient.connect(app.get('mongodb'), function (err, db) {
     if (err) {
@@ -17,6 +20,9 @@ exports.connection = new Promise((resolve, reject) => {
   });
 });
 
+/**
+ * Verify the guest's token
+ */
 exports.verifyGuestToken = function (options) {
   return function (hook) {
     try {
@@ -36,7 +42,7 @@ exports.verifyGuestToken = function (options) {
       // if this is a guest type token
       if (token.roomId !== undefined) {
         // throw err if the token is not valid for THIS room
-        if (token.roomId != reqId) {
+        if (token.roomId !== reqId) {
           throw new errors.BadRequest('Invalid token for this path', { token: hook.params.token });
         }
       }
@@ -46,6 +52,9 @@ exports.verifyGuestToken = function (options) {
   };
 };
 
+/**
+ * Verify the token for this ressource
+ */
 exports.verifyTokenForRessource = function (options) {
   return function (hook) {
     return exports.connection.then(db => {
@@ -75,6 +84,9 @@ exports.verifyTokenForRessource = function (options) {
   }
 }
 
+/**
+ * Adds jsonPatch functionnality to add elements to an array
+ */
 exports.jsonPatchAdd = function (app, serviceName) {
   return function (hook) {
     if (hook.data.path !== undefined && hook.data.op === 'add' && hook.data.value !== undefined) {

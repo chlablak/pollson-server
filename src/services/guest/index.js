@@ -7,21 +7,21 @@ const configuration = require('feathers-configuration');
 const app = feathers().configure(configuration(__dirname));
 
 class Service {
-  constructor(options) {
+  constructor (options) {
     this.options = options || {};
   }
 
-  find(params) {
+  find (params) {
     return Promise.resolve([]);
   }
 
-  get(id, params) {
+  get (id, params) {
     return Promise.resolve({
       id, text: `A new message with ID: ${id}!`
     });
   }
 
-  create(data, params) {
+  create (data, params) {
     let config = app.get('auth');
 
     let token = jwt.sign({
@@ -32,15 +32,15 @@ class Service {
     return Promise.resolve({ token: token });
   }
 
-  update(id, data, params) {
+  update (id, data, params) {
     return Promise.resolve(data);
   }
 
-  patch(id, data, params) {
+  patch (id, data, params) {
     return Promise.resolve(data);
   }
 
-  remove(id, params) {
+  remove (id, params) {
     return Promise.resolve({ id });
   }
 }
@@ -50,11 +50,7 @@ module.exports = function () {
 
   // Initialize our service with any options it requires
   app.use('/guests',
-    new Service() /*,
-        function(req, res, next) {
-            req.feathers.headers = req.headers;
-            next();
-        }*/);
+    new Service());
 
   // Get our initialize service to that we can bind hooks
   const guestService = app.service('/guests');

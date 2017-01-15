@@ -1,7 +1,6 @@
 'use strict';
 
 const globalHooks = require('../../../hooks');
-const hooks = require('feathers-hooks');
 const ObjectId = require('mongodb').ObjectID;
 const jwt = require('jsonwebtoken');
 const errors = require('feathers-errors');
@@ -9,15 +8,21 @@ const feathers = require('feathers');
 const configuration = require('feathers-configuration');
 const app = feathers().configure(configuration(__dirname));
 
-function hasAnswered(answered, id) {
+/**
+ * Check if this user has already answered
+ */
+function hasAnswered (answered, id) {
   for (let i = 0; i < answered.length; ++i) {
-    if (answered[i] == id) {
+    if (answered[i] === id) {
       return true;
     }
   }
   return false;
 }
 
+/**
+ * Check that the answer given is valid
+ */
 const validateAnswer = function (options) {
   return function (hook) {
     let config = app.get('auth');
@@ -29,13 +34,17 @@ const validateAnswer = function (options) {
       // find the document
       return new Promise((resolve, reject) => {
         let objId = new ObjectId(hook.data.answer);
-        roomCollection.findOne({ "questions.options._id": objId }, function (err, doc) {
+        roomCollection.findOne({ 'questions.options._id': objId }, function (err, doc) {
           if (err) {
             return reject(err);
           }
 
           if (doc === undefined || doc === null) {
             return reject(new errors.BadRequest('There is no answer with this id', { answer: hook.data.answer }));
+          }
+
+          if (!doc.open) {
+            return reject(new errors.BadRequest('This room is closed!'));
           }
 
           let questionIndex, answerIndex;
@@ -56,11 +65,11 @@ const validateAnswer = function (options) {
 
           // check if question is still open to answers
           if (!doc.questions[questionIndex].open) {
-            return reject(new errors.BadRequest('This question is closed', { question: doc.question[questionIndex].text}))
+            return reject(new errors.BadRequest('This question is closed', { question: doc.question[questionIndex].text }))
           }
 
           // update the document
-          return new Promise((resolve1, reject1) => {
+          return new Promise((resolve, reject) => {
             let incPath = 'questions.' + questionIndex + '.options.' + answerIndex + '.count';
             let incQuery = {};
             incQuery[incPath] = 1;
@@ -69,11 +78,11 @@ const validateAnswer = function (options) {
             let addQuery = {};
             addQuery[addPath] = token._id;
 
-            roomCollection.findOneAndUpdate({ "questions.options._id": objId }, { $inc: incQuery, $addToSet: addQuery }, function (err1, doc1) {
+            roomCollection.findOneAndUpdate({ 'questions.options._id': objId }, { $inc: incQuery, $addToSet: addQuery }, function (err1, doc1) {
               if (err1) {
                 return reject(err1);
               }
-              resolve(hook);
+              return resolve(hook);
             })
           });
         });
