@@ -30,7 +30,7 @@
     "feathers-configuration": "^0.4.1",
     "feathers-errors": "^2.5.0",
     "feathers-hooks": "^1.7.0",
-    "feathers-hooks-common": "^2.0.2",
+    "feathers-hooks-common": "^2.0.3",
     "feathers-mongoose": "^3.6.1",
     "feathers-rest": "^1.5.2",
     "feathers-socketio": "^1.4.2",
@@ -42,7 +42,10 @@
     "winston": "^2.3.0"
   },
   "devDependencies": {
-    "jshint": "^2.9.4",
+    "eslint": "^3.10.2",
+    "eslint-config-standard": "^6.2.0",
+    "eslint-plugin-promise": "^3.0.0",
+    "eslint-plugin-standard": "^2.0.1",
     "mocha": "^3.2.0",
     "request": "^2.79.0"
   }

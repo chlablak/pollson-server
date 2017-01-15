@@ -1,0 +1,21 @@
+{
+    "extends": "standard",
+    "env": {
+        "es6": true,
+        "node": true
+    },
+    "plugins": [
+        "standard",
+        "promise"
+    ],
+    "rules": {
+        "no-var": 2,
+        "no-confusing-arrow": 1,
+        "no-const-assign": 2,
+        "consistent-return": 1,
+        "curly": 1,
+        "dot-notation": 1,
+        "eqeqeq": 1,
+        "semi": 0
+    }
+}

@@ -13,7 +13,7 @@ exports.connection = new Promise((resolve, reject) => {
     if (err) {
       return reject(err);
     }
-    resolve(db);
+    return resolve(db);
   });
 });
 
@@ -27,9 +27,9 @@ exports.verifyGuestToken = function (options) {
 
       let reqId;
 
-      if (options == 'path') {
+      if (options === 'path') {
         reqId = hook.id;
-      } else if (options == 'body') {
+      } else if (options === 'body') {
         reqId = hook.data.roomId;
       }
 
@@ -64,7 +64,7 @@ exports.verifyTokenForRessource = function (options) {
 
           let config = app.get('auth');
           let token = jwt.verify(hook.params.token, config.token.secret);
-          if (doc.creator === token._id) {
+          if (doc.owner === token._id) {
             return resolve();
           }
 
@@ -79,7 +79,6 @@ exports.jsonPatchAdd = function (app, serviceName) {
   return function (hook) {
     if (hook.data.path !== undefined && hook.data.op === 'add' && hook.data.value !== undefined) {
       return exports.connection.then(db => {
-        const collection = db.collection(serviceName);
         let path = hook.data.path.split('/')[1];
 
         if (path === undefined) {
