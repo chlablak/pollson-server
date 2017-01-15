@@ -87,6 +87,7 @@ exports.before = function (app) {
       globalHooks.verifyTokenForRessource(),
       hooks.remove('creator'),
       globalHooks.jsonPatchAdd(app, 'rooms'),
+      globalHooks.jsonPatchRemove(app, 'rooms'),
       hooks.setUpdatedAt('updatedAt')
     ],
     remove: [

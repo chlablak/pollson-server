@@ -73,7 +73,8 @@ exports.verifyTokenForRessource = function (options) {
 
           let config = app.get('auth');
           let token = jwt.verify(hook.params.token, config.token.secret);
-          if (doc.owner === token._id) {
+
+          if (doc.owner.toString() === token._id) {
             return resolve();
           }
 
@@ -102,6 +103,49 @@ exports.jsonPatchAdd = function (app, serviceName) {
             res.questions.push(hook.data.value);
             let data = { questions: res.questions };
             return app.service(serviceName).patch(hook.id, data, hook.params)
+          })
+          .then(function (res) {
+          })
+          .catch(function (err) {
+            throw err;
+          })
+      })
+    }
+  }
+}
+
+exports.jsonPatchRemove = function (app, serviceName) {
+  return function (hook) {
+    if (hook.data.path !== undefined && hook.data.op === 'remove' && hook.data.value !== undefined) {
+      return exports.connection.then(db => {
+        let path = hook.data.path.split('/')[1];
+
+        if (path === undefined) {
+          throw new errors.BadRequest('Path must be formed like: \'/elementToAdd\'');
+        }
+
+        return app.service(serviceName).find(hook.params).then(res => {
+          for (let i = 0; i < res.data.length; ++i) {
+            for (let j = 0; j < res.data[i].questions.length; ++j) {
+              if (res.data[i].questions[j]._id.toString() === hook.data.value) {
+                return res.data[i];
+              }
+            }
+          }
+          throw new errors.BadRequest('Wrong value input');
+        })
+          .then(res => {
+            let index = -1;
+            for (let i = 0; i < res.questions.length; ++i) {
+              if (res.questions[i]._id.toString() === hook.data.value) {
+                index = i;
+              }
+            }
+
+            res.questions.splice(index, 1);
+
+            let data = { questions: res.questions };
+            return app.service(serviceName).patch(res._id, data, hook.params)
           })
           .then(function (res) {
           })
