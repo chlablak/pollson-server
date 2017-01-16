@@ -27,7 +27,9 @@ const checkRoomCredentials = function (options) {
               return reject(new errors.BadRequest('This room requires a password'));
             }
 
-            hook.data.password = Number.parseInt(hook.data.password);
+            if (hook.data.password !== undefined) {
+              hook.data.password = Number.parseInt(hook.data.password);
+            }
 
             if (doc.password != hook.data.password) {
               return reject(new errors.BadRequest('Wrong password', { password: hook.data.password }));
