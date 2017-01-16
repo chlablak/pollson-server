@@ -29,7 +29,8 @@ class Service {
       roomId: data.roomId,
       exp: Math.floor(Date.now() / 1000) + (24 * 60 * 60)
     }, config.token.secret);
-    return Promise.resolve({ token: token });
+
+    return Promise.resolve({ roomId: data.roomId, guestId: data._id, token: token });
   }
 
   update (id, data, params) {

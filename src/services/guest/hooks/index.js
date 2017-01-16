@@ -46,26 +46,6 @@ const checkRoomCredentials = function (options) {
   };
 };
 
-/**
- * Add the short room id
- */
-const addRoomId = function (options) {
-  return function (hook) {
-    return globalHooks.connection.then(db => {
-      const roomCollection = db.collection('rooms');
-      return new Promise((resolve, reject) => {
-        roomCollection.find({ id: hook.data.room }).limit(1).toArray(function (err, docs) {
-          if (err) {
-            return reject(err);
-          }
-          hook.result._id = docs[0]._id;
-          return resolve(hook)
-        });
-      });
-    });
-  };
-};
-
 exports.before = {
   all: [],
   find: [],
@@ -80,7 +60,7 @@ exports.after = {
   all: [],
   find: [],
   get: [],
-  create: [addRoomId()],
+  create: [],
   update: [],
   patch: [],
   remove: []

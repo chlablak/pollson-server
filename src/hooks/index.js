@@ -25,30 +25,32 @@ exports.connection = new Promise((resolve, reject) => {
  */
 exports.verifyGuestToken = function (options) {
   return function (hook) {
-    try {
-      let config = app.get('auth');
+    if (hook.params.provider === 'rest') {
+      try {
+        let config = app.get('auth');
 
-      // throws err if no token is present
-      let token = jwt.verify(hook.params.token, config.token.secret);
+        // throws err if no token is present
+        let token = jwt.verify(hook.params.token, config.token.secret);
 
-      let reqId;
+        let reqId;
 
-      if (options === 'path') {
-        reqId = hook.id;
-      } else if (options === 'body') {
-        reqId = hook.data.roomId;
-      }
-
-      // if this is a guest type token
-      if (token.roomId !== undefined) {
-        // throw err if the token is not valid for THIS room
-        if (token.roomId !== reqId) {
-          throw new errors.BadRequest('Invalid token for this path', { token: hook.params.token });
+        if (options === 'path') {
+          reqId = hook.id;
+        } else if (options === 'body') {
+          reqId = hook.data.roomId;
         }
+
+        // if this is a guest type token
+        if (token.roomId !== undefined) {
+          // throw err if the token is not valid for THIS room
+          if (token.roomId !== reqId) {
+            throw new errors.BadRequest('Invalid token for this path', { token: hook.params.token });
+          }
+        }
+      } catch (err) {
+        throw err;
       }
-    } catch (err) {
-      throw err;
-    }
+    };
   };
 };
 
@@ -100,8 +102,9 @@ exports.jsonPatchAdd = function (app, serviceName) {
 
         return app.service(serviceName).get(hook.id, hook.params)
           .then(res => {
-            res.questions.push(hook.data.value);
-            let data = { questions: res.questions };
+            res[path].push(hook.data.value);
+            let data = {};
+            data[path] = res[path];
             return app.service(serviceName).patch(hook.id, data, hook.params)
           })
           .then(function (res) {
@@ -128,8 +131,8 @@ exports.jsonPatchRemoveReplace = function (app, serviceName) {
 
         return app.service(serviceName).find(hook.params).then(res => {
           for (let i = 0; i < res.data.length; ++i) {
-            for (let j = 0; j < res.data[i].questions.length; ++j) {
-              if (res.data[i].questions[j]._id.toString() === hook.data.value._id) {
+            for (let j = 0; j < res.data[i][path].length; ++j) {
+              if (res.data[i][path][j]._id.toString() === hook.data.value._id) {
                 return res.data[i];
               }
             }
@@ -138,19 +141,20 @@ exports.jsonPatchRemoveReplace = function (app, serviceName) {
         })
           .then(res => {
             let index = -1;
-            for (let i = 0; i < res.questions.length; ++i) {
-              if (res.questions[i]._id.toString() === hook.data.value._id) {
+            for (let i = 0; i < res[path].length; ++i) {
+              if (res[path][i]._id.toString() === hook.data.value._id) {
                 index = i;
               }
             }
 
             if (hook.data.op === 'remove') {
-              res.questions.splice(index, 1);
+              res[path].splice(index, 1);
             } else if (hook.data.op === 'replace') {
-              res.questions[index].open = hook.data.value.open
+              res[path][index].open = hook.data.value.open
             }
 
-            let data = { questions: res.questions };
+            let data = {};
+            data[path] = res[path];
 
             return app.service(serviceName).patch(res._id, data, hook.params)
           })

@@ -11,7 +11,7 @@ const app = feathers().configure(configuration(__dirname));
 /**
  * Check if this user has already answered
  */
-function hasAnswered (answered, id) {
+function hasAnswered(answered, id) {
   for (let i = 0; i < answered.length; ++i) {
     if (answered[i] === id) {
       return true;
@@ -25,6 +25,7 @@ function hasAnswered (answered, id) {
  */
 const validateAnswer = function (options) {
   return function (hook) {
+    //if (hook.params.provider === 'rest') {
     let config = app.get('auth');
     let token = jwt.verify(hook.params.token, config.token.secret);
 
@@ -53,12 +54,12 @@ const validateAnswer = function (options) {
           for (let i = 0; i < doc.questions.length; ++i) {
             // for each option
             for (let j = 0; j < doc.questions[i].options.length; ++j) {
-              if (doc.questions[i].options[j]._id == hook.data.answer) {
+              if (doc.questions[i].options[j]._id.toString() === hook.data.answer) {
                 questionIndex = i;
                 answerIndex = j;
-                if (hasAnswered(doc.questions[i].answered, token._id)) {
-                  return reject(new errors.BadRequest('This user has already answered this question'));
-                }
+              }
+              if (hasAnswered(doc.questions[i].options[j].answered, token._id)) {
+                return reject(new errors.BadRequest('This user has already answered this question'));
               }
             }
           }
@@ -69,25 +70,29 @@ const validateAnswer = function (options) {
           }
 
           // update the document
-          return new Promise((resolve, reject) => {
-            let incPath = 'questions.' + questionIndex + '.options.' + answerIndex + '.count';
+          return new Promise((resolve1, reject1) => {
+            let incPath = 'questions.' + questionIndex + '.options.' + answerIndex + '.answered';
             let incQuery = {};
-            incQuery[incPath] = 1;
+            incQuery[incPath] = token._id;
 
-            let addPath = 'questions.' + questionIndex + '.answered';
+            /*let addPath = 'questions.' + questionIndex + '.answered';
             let addQuery = {};
-            addQuery[addPath] = token._id;
+            addQuery[addPath] = token._id;*/
 
-            roomCollection.findOneAndUpdate({ 'questions.options._id': objId }, { $inc: incQuery, $addToSet: addQuery }, function (err1, doc1) {
+            //console.log('here  ' + JSON.stringify(incQuery, null, 2));
+
+            roomCollection.findOneAndUpdate({ 'questions.options._id': objId }, { $addToSet: incQuery }, function (err1, doc1) {
               if (err1) {
                 return reject(err1);
               }
-              return resolve(hook);
+              //console.log('inside: \n' + JSON.stringify(doc1, null, 2));
+              resolve(hook);
             })
           });
         });
       });
     });
+    //};
   };
 };
 

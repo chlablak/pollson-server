@@ -27,15 +27,11 @@ const roomSchema = new Schema({
     options: [{
       text: { type: String, required: true },
 
-      // how many people chose this answer?
-      count: { type: Number, default: 0 }
+      answer: { type: Boolean },
+
+      // list of users who have already answered this question
+      answered: [{ type: ObjectId }]
     }],
-
-    // the number to the right answer (index from 0 to options.length - 1)
-    answer: { type: Number },
-
-    // list of users who have already answered this question
-    answered: [{ type: String }],
 
     // is the quiz still open or locked?
     open: { type: Boolean, default: true }
