@@ -29,10 +29,12 @@ const addShortRoomNumber = function (options) {
  */
 const checkPwdFormat = function (options) {
   return function (hook) {
-    hook.data.password = Number.parseInt(hook.data.password);
-    let password = parseInt(hook.data.password, 10);
-    if (password < 0 || password > 9999) {
-      throw new errors.BadRequest('Password should be a number between 0000 and 9999', { password: hook.data.password });
+    if (hook.data.password !== undefined) {
+      hook.data.password = Number.parseInt(hook.data.password);
+      let password = parseInt(hook.data.password, 10);
+      if (password < 0 || password > 9999) {
+        throw new errors.BadRequest('Password should be a number between 0000 and 9999', { password: hook.data.password });
+      }
     }
   }
 }
@@ -78,6 +80,7 @@ exports.before = function (app) {
       auth.populateUser(),
       auth.restrictToAuthenticated(),
       globalHooks.verifyTokenForRessource(),
+      checkPwdFormat(),
       hooks.remove('creator'),
       hooks.setUpdatedAt('updatedAt')
     ],
@@ -86,6 +89,7 @@ exports.before = function (app) {
       auth.populateUser(),
       auth.restrictToAuthenticated(),
       globalHooks.verifyTokenForRessource(),
+      checkPwdFormat(),
       hooks.remove('creator'),
       globalHooks.jsonPatchAdd(app, 'rooms'),
       globalHooks.jsonPatchRemoveReplace(app, 'rooms'),
