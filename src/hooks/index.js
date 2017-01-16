@@ -7,6 +7,8 @@ const configuration = require('feathers-configuration');
 const app = feathers().configure(configuration(__dirname));
 const MongoClient = require('mongodb').MongoClient;
 const ObjectId = require('mongodb').ObjectID;
+const config = app.get('auth');
+
 
 /**
  * DB connection used by many hooks to access data
@@ -27,8 +29,6 @@ exports.verifyGuestToken = function (options) {
   return function (hook) {
     if (hook.params.provider === 'rest') {
       try {
-        let config = app.get('auth');
-
         // throws err if no token is present
         let token = jwt.verify(hook.params.token, config.token.secret);
 
@@ -73,7 +73,6 @@ exports.verifyTokenForRessource = function (options) {
             return resolve();
           }
 
-          let config = app.get('auth');
           let token = jwt.verify(hook.params.token, config.token.secret);
 
           if (doc.owner.toString() === token._id) {
@@ -166,4 +165,36 @@ exports.jsonPatchRemoveReplace = function (app, serviceName) {
       })
     }
   }
+}
+
+exports.getUserInfo = function (app, encToken) {
+  return exports.connection.then(db => {
+    let token = jwt.verify(encToken, config.token.secret);
+    //console.log('gUI: ' + JSON.stringify(token, null, 2));
+
+
+    return exports.connection.then(db => {
+      const collection = db.collection('users');
+      return new Promise((resolve, reject) => {
+        // if user token
+        if (token.roomId === undefined) {
+          let obj = { _id: ObjectId(token._id) };
+          // console.log('obj: ' + JSON.stringify(obj));
+          collection.findOne(obj, function (err, doc) {
+            if (err) {
+              throw err
+            }
+
+            if (doc === null || doc === undefined) {
+              reject({ type: 'error' });
+            }
+
+            resolve({ type: 'user', subscriptions: doc.subscriptions });
+          })
+        } else {
+          resolve({ type: 'guest', subscriptions: [token.roomId] });
+        }
+      })
+    })
+  })
 }

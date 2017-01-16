@@ -47,11 +47,15 @@ module.exports = function () {
   // Get our initialize service to that we can bind hooks
   const answerService = app.service('/answers');
 
+  answerService.filter(function (data, connection, hook) {
+    return false;
+  });
+
   // Set up our before hooks
-  answerService.before(hooks.before);
+  answerService.before(hooks.before(app));
 
   // Set up our after hooks
-  answerService.after(hooks.after);
+  answerService.after(hooks.after(app));
 };
 
 module.exports.Service = Service;

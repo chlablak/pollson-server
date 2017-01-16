@@ -56,6 +56,10 @@ module.exports = function () {
   // Get our initialize service to that we can bind hooks
   const guestService = app.service('/guests');
 
+  guestService.filter(function (data, connection, hook) {
+    return false;
+  });
+
   // Set up our before hooks
   guestService.before(hooks.before);
 

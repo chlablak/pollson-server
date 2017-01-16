@@ -11,7 +11,7 @@ module.exports = function () {
     Model: user,
     paginate: {
       default: 5,
-      max: 25
+      max: 100
     }
   };
 
@@ -21,12 +21,9 @@ module.exports = function () {
   // Get our initialize service to that we can bind hooks
   const userService = app.service('/users');
 
-  /*userService.filter(function (data, connection, hook) {
-    console.log('in user filter');
-    //console.log('conn: ' + connection.user);
-    //console.log('prms: ' + hook.params.user);
-    return data;
-  });*/
+  userService.filter(function (data, connection, hook) {
+    return false;
+  });
 
   // Set up our before hooks
   userService.before(hooks.before(app));

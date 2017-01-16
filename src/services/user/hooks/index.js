@@ -35,7 +35,6 @@ exports.before = function (app) {
       auth.populateUser(),
       auth.restrictToAuthenticated(),
       auth.restrictToOwner({ ownerField: '_id' }),
-      hooks.remove('subscriptions'),
       globalHooks.jsonPatchAdd(app, 'users'),
       globalHooks.jsonPatchRemoveReplace(app, 'users'),
       hooks.setUpdatedAt('updatedAt')

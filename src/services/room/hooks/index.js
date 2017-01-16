@@ -8,6 +8,7 @@ const jwt = require('jsonwebtoken');
 const feathers = require('feathers');
 const configuration = require('feathers-configuration');
 const app = feathers().configure(configuration(__dirname));
+const config = app.get('auth');
 
 /**
  * Add a short room id
@@ -18,7 +19,6 @@ const addShortRoomNumber = function (options) {
     // avoid collisions with same id
     hook.data.id = Math.floor(Math.random() * (10000 - 1000) + 1000);
 
-    let config = app.get('auth');
     let token = jwt.verify(hook.params.token, config.token.secret);
     hook.data.owner = token._id;
   }
@@ -56,6 +56,26 @@ const includeSchema = {
   ]
 }
 
+const subscribeToRoom = function (app) {
+  return function (hook) {
+    let userId = jwt.verify(hook.params.token, config.token.secret)._id;
+    app.service('users').patch(userId, { op: 'add', path: '/subscriptions', value: hook.result._id }, hook.params)
+      .then(res => {
+        return hook;
+      })
+      .catch(err => {
+        console.log(err);
+        return hook;
+      })
+  }
+}
+
+const isInternal = function (options) {
+  return function (hook) {
+    return hook.params.provider === 'internal';
+  }
+}
+
 exports.before = function (app) {
   return {
     all: [],
@@ -85,10 +105,10 @@ exports.before = function (app) {
       hooks.setUpdatedAt('updatedAt')
     ],
     patch: [
-      auth.verifyToken(),
-      auth.populateUser(),
-      auth.restrictToAuthenticated(),
-      globalHooks.verifyTokenForRessource(),
+      hooks.iff(!isInternal(), auth.verifyToken()),
+      hooks.iff(!isInternal(), auth.populateUser()),
+      hooks.iff(!isInternal(), auth.restrictToAuthenticated()),
+      hooks.iff(!isInternal(), globalHooks.verifyTokenForRessource()),
       checkPwdFormat(),
       hooks.remove('creator'),
       globalHooks.jsonPatchAdd(app, 'rooms'),
@@ -117,6 +137,7 @@ exports.after = function (app) {
     ],
     create: [
       hooks.populate({ schema: includeSchema }),
+      subscribeToRoom(app),
       hooks.remove('owner')
     ],
     update: [
