@@ -11,6 +11,8 @@ const checkRoomCredentials = function (options) {
   return function (hook) {
     return globalHooks.connection.then(db => {
       const roomCollection = db.collection('rooms');
+      hook.data.room = Number.parseInt(hook.data.room);
+
       return roomCollection.count({ id: hook.data.room }).then(res => {
         if (res === 0) {
           throw new errors.BadRequest('There is no room with this id', { room: hook.data.room });
@@ -24,6 +26,8 @@ const checkRoomCredentials = function (options) {
             if (doc.password != undefined && hook.data.password == undefined) {
               return reject(new errors.BadRequest('This room requires a password'));
             }
+
+            hook.data.password = Number.parseInt(hook.data.password);
 
             if (doc.password != hook.data.password) {
               return reject(new errors.BadRequest('Wrong password', { password: hook.data.password }));

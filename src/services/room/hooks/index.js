@@ -29,6 +29,7 @@ const addShortRoomNumber = function (options) {
  */
 const checkPwdFormat = function (options) {
   return function (hook) {
+    hook.data.password = Number.parseInt(hook.data.password);
     let password = parseInt(hook.data.password, 10);
     if (password < 0 || password > 9999) {
       throw new errors.BadRequest('Password should be a number between 0000 and 9999', { password: hook.data.password });
