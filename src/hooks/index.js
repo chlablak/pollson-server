@@ -23,6 +23,38 @@ exports.connection = new Promise((resolve, reject) => {
 });
 
 /**
+ * Verify the guest's token
+ */
+exports.verifyGuestToken = function (options) {
+  return function (hook) {
+    if (hook.params.provider === 'rest') {
+      try {
+        // throws err if no token is present
+        let token = jwt.verify(hook.params.token, config.token.secret);
+
+        let reqId;
+
+        if (options === 'path') {
+          reqId = hook.id;
+        } else if (options === 'body') {
+          reqId = hook.data.roomId;
+        }
+
+        // if this is a guest type token
+        if (token.roomId !== undefined) {
+          // throw err if the token is not valid for THIS room
+          if (token.roomId !== reqId) {
+            throw new errors.BadRequest('Invalid token for this path', { token: hook.params.token });
+          }
+        }
+      } catch (err) {
+        throw err;
+      }
+    };
+  };
+};
+
+/**
  * Verify the token for this ressource
  */
 exports.verifyTokenForRessource = function (options) {
