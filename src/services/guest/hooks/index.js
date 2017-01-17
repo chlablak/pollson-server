@@ -36,7 +36,7 @@ const checkRoomCredentials = function () {
               hook.data.password = Number.parseInt(hook.data.password, 10);
             }
 
-            if (doc.password.toString() !== hook.data.password.toString()) {
+            if (doc.password !== undefined && doc.password.toString() !== hook.data.password.toString()) {
               return reject(new errors.BadRequest('Wrong password', { password: hook.data.password }));
             }
 
