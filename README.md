@@ -48,6 +48,8 @@ If you wish to post new rooms, you should create a new user. To obtain a guest t
 
 The expected response is a `201 created` with the token and the long id (e.g. `58453c57f7b27d31f4637a90`) in return body.
 
+If a normal user wishes to answer an other user's questions, they need to `POST` on the `/guests` endpoint with their JWT. This will give them the long id to the room and subscribe them to the Socket.IO events on that room.
+
 #### Rooms with password
 If the room has a password and you do not provide one, you will reveive a `400 bad request` with an error message saying `"message": "This room requires a password"`.
 If you provide the wrong password, the response will also be a `400`, but with `"message": "Wrong password"`.
