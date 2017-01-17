@@ -13,7 +13,7 @@ const config = app.get('auth');
 /**
  * Check if this user has already answered
  */
-function hasAnswered (answered, id) {
+function hasAnswered(answered, id) {
   for (let i = 0; i < answered.length; ++i) {
     if (answered[i] === id) {
       return true;
@@ -64,9 +64,12 @@ const validateAnswer = function (app) {
                   questionIndex = i;
                   answerIndex = j;
                 }
-                if (hasAnswered(doc.questions[i].options[j].answered, token._id)) {
-                  return reject(new errors.BadRequest('This user has already answered this question'));
-                }
+              }
+            }
+
+            for (let j = 0; j < doc.questions[questionIndex].options.length; j += 1) {
+              if (hasAnswered(doc.questions[questionIndex].options[j].answered, token._id)) {
+                return reject(new errors.BadRequest('This user has already answered this question'));
               }
             }
 
