@@ -28,7 +28,7 @@ function hasAnswered (answered, id) {
 const validateAnswer = function (app) {
   return function (hook) {
     if (hook.params.provider === 'rest') {
-      let token = jwt.verify(hook.params.token, config.token.secret);
+      const token = jwt.verify(hook.params.token, config.token.secret);
 
       return globalHooks.connection.then(db => {
         const roomCollection = db.collection('rooms');
@@ -49,7 +49,12 @@ const validateAnswer = function (app) {
               return reject(new errors.BadRequest('This room is closed!'));
             }
 
-            let questionIndex, answerIndex;
+            if (token.roomId !== undefined && doc._id.toString() !== token.roomId.toString()) {
+              return reject(new errors.BadRequest('You can not access this room with this token'));
+            }
+
+            let questionIndex;
+            let answerIndex;
 
             // for each question
             for (let i = 0; i < doc.questions.length; ++i) {
@@ -110,12 +115,11 @@ exports.before = function (app) {
     find: [],
     get: [],
     create: [
-      globalHooks.verifyGuestToken('body'),
-      validateAnswer(app)
+      validateAnswer(app),
     ],
     update: [],
     patch: [],
-    remove: []
+    remove: [],
   };
 };
 
