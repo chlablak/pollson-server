@@ -81,7 +81,6 @@ To answer a question, you must `POST` on `/answers` endpoint. The header of the 
 
 ```json
 {
-	"roomId": "5845413180076429eca241f3",
 	"answer": "5845413180076429eca241f5"
 }
 ```
