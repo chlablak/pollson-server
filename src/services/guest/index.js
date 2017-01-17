@@ -30,7 +30,15 @@ class Service {
       exp: Math.floor(Date.now() / 1000) + (24 * 60 * 60)
     }, config.token.secret);
 
-    return Promise.resolve({ roomId: data.roomId, guestId: data._id, token: token });
+    let ret = { roomId: data.roomId };
+
+    // guest token
+    if (params.token === undefined) {
+      ret.guestId = data._id;
+      ret.token = token;
+    }
+
+    return Promise.resolve(ret);
   }
 
   update (id, data, params) {
@@ -61,10 +69,10 @@ module.exports = function () {
   });
 
   // Set up our before hooks
-  guestService.before(hooks.before);
+  guestService.before(hooks.before(app));
 
   // Set up our after hooks
-  guestService.after(hooks.after);
+  guestService.after(hooks.after(app));
 };
 
 module.exports.Service = Service;

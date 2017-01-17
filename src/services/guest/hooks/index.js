@@ -3,6 +3,11 @@
 const globalHooks = require('../../../hooks');
 const ObjectId = require('mongodb').ObjectID;
 const errors = require('feathers-errors');
+const jwt = require('jsonwebtoken');
+const feathers = require('feathers');
+const configuration = require('feathers-configuration');
+const app = feathers().configure(configuration(__dirname));
+const config = app.get('auth');
 
 /**
  * Check room id/password before generating guest token
@@ -52,22 +57,40 @@ const checkRoomCredentials = function (options) {
   };
 };
 
-exports.before = {
-  all: [],
-  find: [],
-  get: [],
-  create: [checkRoomCredentials()],
-  update: [],
-  patch: [],
-  remove: []
+const subscribeUser = function (app) {
+  return function (hook, next) {
+    // user,not guest
+    if (hook.params.token !== undefined) {
+      app.service('users').patch(jwt.verify(hook.params.token, config.token.secret)._id, { op: 'add', path: '/subscriptions', value: hook.data.roomId }, hook.params)
+        .then(res => next())
+        .catch(err => {
+          console.log(err);
+          next();
+        });
+    }
+  }
+}
+
+exports.before = function (app) {
+  return {
+    all: [],
+    find: [],
+    get: [],
+    create: [checkRoomCredentials()],
+    update: [],
+    patch: [],
+    remove: []
+  };
 };
 
-exports.after = {
-  all: [],
-  find: [],
-  get: [],
-  create: [],
-  update: [],
-  patch: [],
-  remove: []
+exports.after = function (app) {
+  return {
+    all: [],
+    find: [],
+    get: [],
+    create: [subscribeUser(app)],
+    update: [],
+    patch: [],
+    remove: []
+  };
 };
