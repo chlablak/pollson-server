@@ -67,6 +67,8 @@ const subscribeUser = function (app) {
           console.log(err);
           next();
         });
+    } else {
+      next();
     }
   }
 }
