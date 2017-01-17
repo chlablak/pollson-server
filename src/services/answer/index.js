@@ -3,21 +3,21 @@
 const hooks = require('./hooks');
 
 class Service {
-  constructor (options) {
+  constructor(options) {
     this.options = options || {};
   }
 
-  find (params) {
+  find(params) {
     return Promise.resolve([]);
   }
 
-  get (id, params) {
+  get(id, params) {
     return Promise.resolve({
-      id, text: `A new message with ID: ${id}!`
+      id, text: `A new message with ID: ${id}!`,
     });
   }
 
-  create (data, params) {
+  create(data, params) {
     if (Array.isArray(data)) {
       return Promise.all(data.map(current => this.create(current)));
     }
@@ -25,15 +25,15 @@ class Service {
     return Promise.resolve(data);
   }
 
-  update (id, data, params) {
+  update(id, data, params) {
     return Promise.resolve(data);
   }
 
-  patch (id, data, params) {
+  patch(id, data, params) {
     return Promise.resolve(data);
   }
 
-  remove (id, params) {
+  remove(id, params) {
     return Promise.resolve({ id });
   }
 }
@@ -47,9 +47,7 @@ module.exports = function () {
   // Get our initialize service to that we can bind hooks
   const answerService = app.service('/answers');
 
-  answerService.filter(function (data, connection, hook) {
-    return false;
-  });
+  answerService.filter((data, connection, hook) => false);
 
   // Set up our before hooks
   answerService.before(hooks.before(app));

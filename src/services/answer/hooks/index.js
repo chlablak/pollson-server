@@ -6,37 +6,38 @@ const jwt = require('jsonwebtoken');
 const errors = require('feathers-errors');
 const feathers = require('feathers');
 const configuration = require('feathers-configuration');
-const app = feathers().configure(configuration(__dirname));
-const config = app.get('auth');
+
+const config = feathers().configure(configuration(__dirname)).get('auth');
 
 
 /**
  * Check if this user has already answered
  */
 function hasAnswered(answered, id) {
-  for (let i = 0; i < answered.length; ++i) {
-    if (answered[i] === id) {
-      return true;
+  let ret = false;
+  answered.forEach((answer) => {
+    if (answer === id) {
+      ret = true;
     }
-  }
-  return false;
+  });
+  return ret;
 }
 
 /**
  * Check that the answer given is valid
  */
 const validateAnswer = function (app) {
-  return function (hook) {
+  return (hook) => {
     if (hook.params.provider === 'rest') {
       const token = jwt.verify(hook.params.token, config.token.secret);
 
-      return globalHooks.connection.then(db => {
+      return globalHooks.connection.then((db) => {
         const roomCollection = db.collection('rooms');
 
         // find the document
         return new Promise((resolve, reject) => {
-          let objId = new ObjectId(hook.data.answer);
-          roomCollection.findOne({ 'questions.options._id': objId }, function (err, doc) {
+          const objId = new ObjectId(hook.data.answer);
+          roomCollection.findOne({ 'questions.options._id': objId }, (err, doc) => {
             if (err) {
               return reject(err);
             }
@@ -67,7 +68,7 @@ const validateAnswer = function (app) {
               }
             }
 
-            for (let j = 0; j < doc.questions[questionIndex].options.length; j += 1) {
+            for (let j = 0; j < doc.questions[questionIndex].options.length; ++j) {
               if (hasAnswered(doc.questions[questionIndex].options[j].answered, token._id)) {
                 return reject(new errors.BadRequest('This user has already answered this question'));
               }
@@ -79,35 +80,28 @@ const validateAnswer = function (app) {
             }
 
             // update the document
-            return new Promise((resolve1, reject1) => {
-              let incPath = 'questions.' + questionIndex + '.options.' + answerIndex + '.answered';
-              let incQuery = {};
+            return new Promise(() => {
+              const incPath = 'questions.' + questionIndex + '.options.' + answerIndex + '.answered';
+              const incQuery = {};
               incQuery[incPath] = token._id;
 
-              /*let addPath = 'questions.' + questionIndex + '.answered';
-              let addQuery = {};
-              addQuery[addPath] = token._id;*/
-
-              //console.log('here  ' + JSON.stringify(incQuery, null, 2));
-
-              roomCollection.findOneAndUpdate({ 'questions.options._id': objId }, { $addToSet: incQuery }, function (err1, doc1) {
+              roomCollection.findOneAndUpdate({ 'questions.options._id': objId }, { $addToSet: incQuery }, (err1, doc1) => {
                 if (err1) {
                   return reject(err1);
                 }
-                //console.log('inside: \n' + JSON.stringify(doc1, null, 2));
 
-                let patchParams = Object.assign({}, hook.params);
+                const patchParams = Object.assign({}, hook.params);
                 patchParams.provider = 'internal';
 
                 app.service('rooms').patch(doc1.value._id, {}, patchParams);
 
                 resolve(hook);
-              })
+              });
             });
           });
         });
       });
-    };
+    }
   };
 };
 
@@ -134,6 +128,6 @@ exports.after = function (app) {
     create: [],
     update: [],
     patch: [],
-    remove: []
+    remove: [],
   };
 };

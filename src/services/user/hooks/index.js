@@ -10,17 +10,17 @@ exports.before = function (app) {
     find: [
       auth.verifyToken(),
       auth.populateUser(),
-      auth.restrictToAuthenticated()
+      auth.restrictToAuthenticated(),
     ],
     get: [
       auth.verifyToken(),
       auth.populateUser(),
       auth.restrictToAuthenticated(),
-      auth.restrictToOwner({ ownerField: '_id' })
+      auth.restrictToOwner({ ownerField: '_id' }),
     ],
     create: [
       auth.hashPassword(),
-      hooks.remove('subscriptions')
+      hooks.remove('subscriptions'),
     ],
     update: [
       auth.verifyToken(),
@@ -28,7 +28,7 @@ exports.before = function (app) {
       auth.restrictToAuthenticated(),
       auth.restrictToOwner({ ownerField: '_id' }),
       hooks.remove('subscriptions'),
-      hooks.setUpdatedAt('updatedAt')
+      hooks.setUpdatedAt('updatedAt'),
     ],
     patch: [
       auth.verifyToken(),
@@ -37,14 +37,14 @@ exports.before = function (app) {
       auth.restrictToOwner({ ownerField: '_id' }),
       globalHooks.jsonPatchAdd(app, 'users'),
       globalHooks.jsonPatchRemoveReplace(app, 'users'),
-      hooks.setUpdatedAt('updatedAt')
+      hooks.setUpdatedAt('updatedAt'),
     ],
     remove: [
       auth.verifyToken(),
       auth.populateUser(),
       auth.restrictToAuthenticated(),
-      auth.restrictToOwner({ ownerField: '_id' })
-    ]
+      auth.restrictToOwner({ ownerField: '_id' }),
+    ],
   };
 };
 
@@ -56,6 +56,6 @@ exports.after = function (app) {
     create: [],
     update: [],
     patch: [],
-    remove: []
+    remove: [],
   };
 };

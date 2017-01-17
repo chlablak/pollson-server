@@ -28,25 +28,13 @@ app.use(compress())
   .use(bodyParser.urlencoded({ extended: true }))
   .configure(hooks())
   .configure(rest())
-  .configure(socketio(function (io) {
-    io.on('connection', function (socket) {
-      /*let i;
-      for (i in socket.request) {
-        console.log('for :' + i + '   ' + typeof i);
-      }
-      console.log('connected url: ' + JSON.stringify(socket.request.url, null, 2))
-      socket.emit('news', { text: 'A client connected!' });
-      socket.on('my other event', function (data) {
-        console.log(data)
-      })*/
-    })
-      .use(function (socket, next) {
-        socket.feathers.token = querystring.parse(socket.request.url.split('/')[2]).token;
-        next();
-      })
-  })
-  )
+  .configure(socketio((io) => {
+    io.use((socket, next) => {
+      socket.feathers.token = querystring.parse(socket.request.url.split('/')[2]).token;
+      next();
+    });
+  }))
   .configure(services)
-  .configure(middleware)
+  .configure(middleware);
 
 module.exports = app;

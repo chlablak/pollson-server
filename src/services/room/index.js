@@ -12,13 +12,13 @@ module.exports = function () {
     Model: room,
     paginate: {
       default: 5,
-      max: 100
-    }
+      max: 100,
+    },
   };
 
   // Initialize our service with any options it requires
   app.use('/rooms',
-    function (req, res, next) {
+    (req, res, next) => {
       req.feathers.path = req.path;
       next();
     },
@@ -27,9 +27,12 @@ module.exports = function () {
   // Get our initialize service to that we can bind hooks
   const roomService = app.service('/rooms');
 
-  roomService.filter(function (data, connection, hook) {
-    return globalHooks.getUserInfo(app, connection.token)
-      .then(res => {
+/**
+ * Send only events to people who are subscribed to this room
+ */
+  roomService.filter((data, connection, hook) => {
+    return globalHooks.getUserInfo(connection.token)
+      .then((res) => {
         if (res.type === 'user' || res.type === 'guest') {
           for (let s in res.subscriptions) {
             if (res.subscriptions[s].toString() === data._id.toString()) {
@@ -39,11 +42,11 @@ module.exports = function () {
         }
         return false;
       })
-      .catch(err => {
+      .catch((err) => {
         console.log(err);
         return false;
-      })
-  })
+      });
+  });
 
   // Set up our before hooks
   roomService.before(hooks.before(app));
