@@ -54,6 +54,11 @@ If a normal user wishes to answer an other user's questions, they need to `POST`
 If the room has a password and you do not provide one, you will reveive a `400 bad request` with an error message saying `"message": "This room requires a password"`.
 If you provide the wrong password, the response will also be a `400`, but with `"message": "Wrong password"`.
 
+### Join an other user's room
+To answer questions in a room created by an other user, you will need to use the `/guests` endpoint, but will have to join the current user's token in the `Authorization` header, otherwise you will simply get a guest token in return. Joining the current user's token will allow them to answer questions in the new room and subscribe them to events happening in that room (see event management below).
+
+The expected response is a `201 created` with the token and the long id (e.g. `58453c57f7b27d31f4637a90`) in return body, same as when getting a guest token.
+
 ### Create a room
 To create a new room, `POST` it on the `/rooms` endpoint. Here's a small example room (the format is very likely to change in the near future):
 
@@ -87,3 +92,8 @@ To answer a question, you must `POST` on `/answers` endpoint. The header of the 
 }
 ```
 The expected response is a `201 created`.
+
+### Event management
+To keep all users up to date on voting, our application uses Socket.IO. When a user joins a room or creates one, they should open a websocket connection on the server, at the same address as the REST API. The user's token should be added as a query parameter (in the query's url, `?token=...`) so the server can identify the user or guest that opened the connection, in order to send them only the updates on the rooms they are interested in.
+
+Every time a `PATCH` or `PUT` is done on a room, the server will send out the updated room status to all clients with an open socket connection that are subscribed to this room (users and guests). This allows the client application to update voting stats in real time.
